@@ -49,9 +49,9 @@ object Util {
   def lcm(nums: Long*): Long = nums.reduce(lcm)
 
   def zip3[A](a: List[A], b: List[A], c: List[A]): List[(A, A, A)] = {
-    (a zip b zip c) map {x => x match {
+    (a zip b zip c) map {
       case ((a, b), c) => (a, b, c)
-    }}
+    }
   }
 
   def zip3[A](t: (List[A], List[A], List[A])): List[(A, A, A)] = zip3(t._1, t._2, t._3)
