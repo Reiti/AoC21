@@ -6,9 +6,11 @@ object Day2 {
   def main(args: Array[String]): Unit = {
     val course = Util.loadDayLines(2).map(_.split(" ")).map(v => (v.head, v(1).toInt))
 
+    //Part 1
     val pos1 = finalPositionPart1(course)
     println(pos1._1 * pos1._2)
 
+    //Part 2
     val pos2 = finalPositionPart2(course)
     println(pos2._1 * pos2._2)
   }
