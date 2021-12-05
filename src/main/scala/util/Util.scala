@@ -98,15 +98,15 @@ object Util {
     distance(start) = 0
     q.enqueue(start)
 
-    while(q.nonEmpty) {
+    while (q.nonEmpty) {
       val node = q.dequeue()
-      if(node == target) {
+      if (node == target) {
         return distance(target)
       }
-      for(neigh <- neighbors(graph, node)) {
-        if(!visited.contains(neigh._1)) {
+      for (neigh <- neighbors(graph, node)) {
+        if (!visited.contains(neigh._1)) {
           val newDistance = distance(node) + neigh._2
-          if(newDistance < distance(neigh._1)) {
+          if (newDistance < distance(neigh._1)) {
             distance(neigh._1) = newDistance
             q.enqueue(neigh._1)
           }
