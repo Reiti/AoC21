@@ -1,6 +1,7 @@
 package util
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.io.Source
 import scala.util.Using
 
@@ -117,6 +118,9 @@ object Util {
     distance(target)
   }
 
-
+  //https://stackoverflow.com/a/36960228
+  def memoize[I, O](f: I => O): I => O = new mutable.HashMap[I, O]() {
+    override def apply(key: I): O = getOrElseUpdate(key, f(key))
+  }
 }
 

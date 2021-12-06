@@ -17,19 +17,8 @@ object Day6 {
     fish.map { case 0 => 6; case x => x - 1 } ++ List.fill(fish.count(_ == 0))(8)
   }
 
-  val memo = mutable.HashMap.empty[(BigInt, BigInt), BigInt]
-
-  def offspring(time: BigInt, days: BigInt): BigInt = {
-    if(memo.contains((time, days))) {
-      memo((time, days))
-    } else {
-     if(days <= time) {
-       0
-     } else {
-       val r = 1 + offspring(6, days - time - 1) + offspring(8, days - time - 1)
-       memo.put((time, days), r)
-       r
-     }
-    }
+  lazy val offspring: ((BigInt, BigInt)) => BigInt = Util.memoize {
+    case (t, d) if d <= t => 0
+    case (t, d) => 1 + offspring(6, d - t - 1) + offspring(8, d - t - 1)
   }
 }
