@@ -68,12 +68,12 @@ object Util {
   case class Node(label: String)
   case class Graph(adj: Map[Node, Set[Node]]) {
     case class DfsState(discovered: Set[Node] = Set(), activeNodes: Set[Node] = Set(), tsOrder: List[Node] = List(),
-                        isCylic: Boolean = false)
+                        isCyclic: Boolean = false)
 
     def dfs: (List[Node], Boolean) = {
       def dfsVisit(currState: DfsState, src: Node): DfsState = {
         val newState = currState.copy(discovered = currState.discovered + src, activeNodes = currState.activeNodes + src,
-          isCylic = currState.isCylic || adj(src).exists(currState.activeNodes))
+          isCyclic = currState.isCyclic || adj(src).exists(currState.activeNodes))
 
         val finalState = adj(src).filterNot(newState.discovered).foldLeft(newState)(dfsVisit)
         val ord = if(finalState.tsOrder.contains(src)) finalState.tsOrder else src :: finalState.tsOrder
@@ -81,7 +81,7 @@ object Util {
       }
 
       val stateAfterSearch = adj.keys.foldLeft(DfsState()) {(state, n) => if (state.discovered(n)) state else dfsVisit(state, n)}
-      (stateAfterSearch.tsOrder, stateAfterSearch.isCylic)
+      (stateAfterSearch.tsOrder, stateAfterSearch.isCyclic)
     }
 
     def topologicalSort: Option[List[Node]] = dfs match {
@@ -123,4 +123,3 @@ object Util {
     override def apply(key: I): O = getOrElseUpdate(key, f(key))
   }
 }
-

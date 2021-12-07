@@ -1,7 +1,5 @@
 import util.Util
 
-import scala.collection.mutable
-
 object Day6 {
   def main(args: Array[String]): Unit = {
     val fish = Util.loadDay(6).split(",").map(_.toInt)
