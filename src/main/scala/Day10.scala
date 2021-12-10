@@ -11,48 +11,26 @@ object Day10 {
   def main(args: Array[String]): Unit = {
     val lines = Util.loadDayLines(10)
 
-    println(lines.map(line => findCorrupted(line, List()) match {
+    val solved = lines.map(line => solve(line.toList, List()))
+
+    //Part 1
+    println(solved.collect({case Right(v) => v}).map({
       case Some(c) => scoring1(c)
       case None => 0
     }).sum)
 
-    val scores = lines.map(line => completeIncomplete(line, List()).foldLeft(0L)({ case (score, next) => score * 5L + scoring2(next) })).filter(_ != 0).sorted
+    val scores2 = solved.collect({case Left(v) => v}).filter(_.nonEmpty).map(_.foldLeft(0L)({case (score, next) => score * 5L + scoring2(next)})).sorted
 
-    println(scores(scores.length/2))
+    //Part 2
+    println(scores2(scores2.length/2))
   }
 
   @tailrec
-  def findCorrupted(line: String, parens: List[Char]): Option[Char] = {
-    if(line.isEmpty) {
-      None
+  def solve(line: List[Char], parens: List[Char]): Either[String, Option[Char]] = line match {
+    case x :: xs => x match {
+      case '<' | '[' | '{' | '(' => solve(xs, inv(x) :: parens)
+      case c => if c != parens.head then Right(Some(c)) else solve(xs, parens.tail)
     }
-    else {
-      line.head match {
-        case '<' | '[' | '{' | '(' => findCorrupted(line.tail, inv(line.head) :: parens );
-        case p =>
-          if (parens.head != line.head) {
-            Some(line.head)
-          } else {
-            findCorrupted(line.tail, parens.tail)
-          }
-      }
-    }
-  }
-
-  @tailrec
-  def completeIncomplete(line: String, parens: List[Char]): String = {
-    if(line.isEmpty) {
-      parens.mkString
-    } else {
-      line.head match {
-        case '<' | '[' | '{' | '(' => completeIncomplete(line.tail, inv(line.head) :: parens);
-        case p =>
-          if (parens.head != line.head) {
-            ""
-          } else {
-            completeIncomplete(line.tail, parens.tail)
-          }
-      }
-    }
+    case Nil => if parens.isEmpty then Right(None) else Left(parens.mkString)
   }
 }
