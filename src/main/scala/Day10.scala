@@ -14,23 +14,20 @@ object Day10 {
     val solved = lines.map(line => solve(line.toList, List()))
 
     //Part 1
-    println(solved.collect({case Right(v) => v}).map({
-      case Some(c) => scoring1(c)
-      case None => 0
-    }).sum)
+    println(solved.collect({case Right(v) => v}).sum)
 
-    val scores2 = solved.collect({case Left(v) => v}).filter(_.nonEmpty).map(_.foldLeft(0L)({case (score, next) => score * 5L + scoring2(next)})).sorted
+    val scores2 = solved.collect({case Left(v) => v}).map(_.foldLeft(0L)((acc, curr) => acc*5L + curr)).sorted
 
     //Part 2
     println(scores2(scores2.length/2))
   }
 
   @tailrec
-  def solve(line: List[Char], parens: List[Char]): Either[String, Option[Char]] = line match {
+  def solve(line: List[Char], parens: List[Char]): Either[List[Int], Int] = line match {
     case x :: xs => x match {
       case '<' | '[' | '{' | '(' => solve(xs, inv(x) :: parens)
-      case c => if c != parens.head then Right(Some(c)) else solve(xs, parens.tail)
+      case c => if c != parens.head then Right(scoring1(c)) else solve(xs, parens.tail)
     }
-    case Nil => if parens.isEmpty then Right(None) else Left(parens.mkString)
+    case Nil => if parens.isEmpty then Right(0) else Left(parens map scoring2)
   }
 }
