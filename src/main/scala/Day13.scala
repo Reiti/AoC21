@@ -5,8 +5,15 @@ object Day13 {
     val input = Util.loadDayLines(13)
     val split = input.splitAt(input.indexWhere(_ == ""))
 
-    val paper = buildMap(split._1)
-    val folds = split._2.tail.map(_.split(" ")(2))
+    val paper = split._1.map(line => {
+      val s = line.split(",")
+      (s(0).toInt, s(1).toInt) -> '#'
+    }).toMap
+
+    val folds = split._2.tail.map(line => {
+      val s = line.split(" ")(2).split("=")
+      (s(0), s(1).toInt)
+    })
 
     //Part 1
     println(foldOnce(folds.head, paper).values.count(_ == '#'))
@@ -15,36 +22,12 @@ object Day13 {
     printMap(folds.foldLeft(paper)((acc, v) => foldOnce(v, acc)))
   }
 
-  def foldOnce(fold: String, paper: Map[(Int, Int), Char]): Map[(Int, Int), Char] = {
-    if(fold.startsWith("y")) {
-      val y = Integer.parseInt(fold.split("=")(1))
-
-      paper.keys.map(k => {
-        if(k._2 < y) {
-          k -> paper(k)
-        } else {
-          (k._1, 2*y - k._2) -> paper(k)
-        }
-      }).toMap.withDefaultValue('.')
-    } else {
-      val x = Integer.parseInt(fold.split("=")(1))
-
-      paper.keys.map(k => {
-        if(k._1 < x) {
-          k -> paper(k)
-        } else {
-          (2*x - k._1, k._2) -> paper(k)
-        }
-      }).toMap.withDefaultValue('.')
+  def foldOnce(fold: (String, Int), paper: Map[(Int, Int), Char]): Map[(Int, Int), Char] = paper.keys.map(k => {
+    fold._1 match {
+      case "y" => (k._1, fold._2 - Math.abs(k._2 - fold._2)) -> paper(k)
+      case "x" => (fold._2 - Math.abs(k._1 - fold._2), k._2) -> paper(k)
     }
-  }
-
-  def buildMap(paper: List[String]): Map[(Int, Int), Char] = {
-    paper.map(idx => {
-      val s = idx.split(",")
-      (Integer.parseInt(s(0)), Integer.parseInt(s(1))) -> '#'
-    }).toMap.withDefaultValue('.')
-  }
+  }).toMap
 
   def printMap(map: Map[(Int, Int), Char]): Unit = {
     val maxX = map.keys.maxBy(_._1)._1
@@ -52,7 +35,7 @@ object Day13 {
 
     for(j <- 0 to maxY) {
       for(i <- 0 to maxX) {
-        print(map((i, j)))
+        print(map.getOrElse((i, j), '.'))
       }
       println()
     }
