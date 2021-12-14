@@ -11,16 +11,23 @@ object Day14 {
       s(0) -> s(1)
     }).toMap
 
-    val prod = (0 until 10).foldLeft(polymer)((acc, c) => step(acc, productions, "")).groupBy(identity).map(e => (e._1, e._2.length))
+    val prod = (0 until 10)
+      .foldLeft(polymer)((acc, c) => step(acc, productions, ""))
+      .groupBy(identity)
+      .map(_._2.length)
 
     //Part 1
-    println(prod.maxBy(_._2)._2 - prod.minBy(_._2)._2)
+    println(prod.max - prod.min)
 
-    val t = polymer.groupBy(identity).view.mapValues(l => l.length.toLong).toMap :: polymer.sliding(2).map(w => count(w, productions, 40)).toList
-    val finalCount = t.reduce((m1, m2) => (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap)
+    val finalCount = polymer
+      .sliding(2)
+      .map(w => count(w, productions, 40))
+      .foldLeft(polymer.groupBy(identity).view.mapValues(_.length.toLong).toMap)((m1, m2) => {
+        (m1.toSeq ++ m2).groupMapReduce(_._1)(_._2)(_ + _)
+      }).values
 
     //Part 2
-    println(finalCount.maxBy(_._2)._2 - finalCount.minBy(_._2)._2)
+    println(finalCount.max - finalCount.min)
   }
 
   @tailrec
@@ -44,7 +51,7 @@ object Day14 {
 
       val m1 = count(p1, prod, steps - 1)
       val m2 = count(p2, prod, steps - 1)
-      val sub = (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap
+      val sub = (m1.toSeq ++ m2).groupMapReduce(_._1)(_._2)(_ + _)
 
       sub.updated(c(0), sub.getOrElse(c(0), 0L) + 1L)
   }
