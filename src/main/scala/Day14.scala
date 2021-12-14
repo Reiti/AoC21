@@ -11,14 +11,12 @@ object Day14 {
       s(0) -> s(1)
     }).toMap
 
-
     val prod = (0 until 10).foldLeft(polymer)((acc, c) => step(acc, productions, "")).groupBy(identity).map(e => (e._1, e._2.length))
 
     //Part 1
     println(prod.maxBy(_._2)._2 - prod.minBy(_._2)._2)
 
-    val t = polymer.groupBy(identity).view.mapValues(l => BigInt(l.length)).toMap :: polymer.sliding(2).map(w => count(w, productions, 40)).toList
-
+    val t = polymer.groupBy(identity).view.mapValues(l => l.length.toLong).toMap :: polymer.sliding(2).map(w => count(w, productions, 40)).toList
     val finalCount = t.reduce((m1, m2) => (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap)
 
     //Part 2
@@ -39,24 +37,17 @@ object Day14 {
     }
   }
 
-  lazy val count: ((String, Map[String, String], Int)) => Map[Char, BigInt] = Util.memoize {
-    case (poly, prod, steps) if steps == 0 =>
-        Map()
+  lazy val count: ((String, Map[String, String], Int)) => Map[Char, Long] = Util.memoize {
+    case (poly, prod, steps) if steps == 0 || !prod.contains(poly) => Map()
     case (poly, prod, steps) =>
-      if(prod.contains(poly)) {
-        val c = prod(poly)
+      val c = prod(poly)
+      val p1 = poly(0) + c
+      val p2 = c + poly(1)
 
-        val p1 = poly(0) + c
-        val p2 = c + poly(1)
+      val m1 = count(p1, prod, steps - 1)
+      val m2 = count(p2, prod, steps - 1)
+      val sub = (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap
 
-        val m1 = count(p1, prod, steps - 1)
-        val m2 = count(p2, prod, steps - 1)
-
-        val sub = (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap
-
-        sub.updated(c(0), sub.getOrElse(c(0), BigInt(0)) + BigInt(1))
-      } else {
-        Map()
-      }
-    }
+      sub.updated(c(0), sub.getOrElse(c(0), 0L) + 1L)
+  }
 }
