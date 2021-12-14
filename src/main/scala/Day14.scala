@@ -24,17 +24,15 @@ object Day14 {
   }
 
   @tailrec
-  def step(polymer: String, productions: Map[String, String], res: String): String = {
-    if(polymer.isEmpty) {
-      res
-    } else {
+  def step(polymer: String, productions: Map[String, String], res: String): String = polymer match {
+    case p if p.length < 1 => res
+    case p =>
       val c = polymer.take(2)
       if(productions.contains(c)) {
         step(polymer.drop(1), productions, res + c(0) + productions(c))
       } else {
         step(polymer.drop(1), productions, res + c(0))
       }
-    }
   }
 
   lazy val count: ((String, Map[String, String], Int)) => Map[Char, Long] = Util.memoize {
