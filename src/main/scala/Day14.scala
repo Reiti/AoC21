@@ -17,12 +17,9 @@ object Day14 {
     //Part 1
     println(prod.maxBy(_._2)._2 - prod.minBy(_._2)._2)
 
+    val t = polymer.groupBy(identity).view.mapValues(l => BigInt(l.length)).toMap :: polymer.sliding(2).map(w => count(w, productions, 40)).toList
 
-    val t = polymer.sliding(2).map(w => count(w, productions, 40)).toList
-
-    val finalCount = ('A' to 'Z').map(k => {
-      k -> (t.map(_.getOrElse(k, BigInt(0))).sum + polymer.count(_ == k))
-    }).filter(_._2 != 0).toMap
+    val finalCount = t.reduce((m1, m2) => (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap)
 
     //Part 2
     println(finalCount.maxBy(_._2)._2 - finalCount.minBy(_._2)._2)
@@ -55,9 +52,7 @@ object Day14 {
         val m1 = count(p1, prod, steps - 1)
         val m2 = count(p2, prod, steps - 1)
 
-        val sub = ('A' to 'Z').map(k => {
-          k -> (m1.getOrElse(k, BigInt(0)) + m2.getOrElse(k, BigInt(0)))
-        }).filter(_._2 != 0).toMap
+        val sub = (m1.toSeq ++ m2).groupMap(_._1)(_._2).view.mapValues(_.sum).toMap
 
         sub.updated(c(0), sub.getOrElse(c(0), BigInt(0)) + BigInt(1))
       } else {
