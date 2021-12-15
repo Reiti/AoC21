@@ -1,18 +1,18 @@
 import util.Util
-import util.Util.WeightedGraph
+import util.Util.{WeightedGraph, manhattan}
 
 object Day15 {
   def main(args: Array[String]): Unit = {
     val map = Util.loadDayMap(15).view.mapValues(_ - '0').toMap
 
     //Part 1
-    println(Util.dijkstra(wg(map), (0, 0), dim(map), (g, p) => g(p)))
-
-    val ext = extend(map)
+    println(dist(map))
 
     //Part 2
-    println(Util.dijkstra(wg(ext), (0, 0), dim(ext), (g, p) => g(p)))
+    println(dist(extend(map)))
   }
+
+  def dist(map: Map[(Int, Int), Int]): Int = Util.dijkstra(wg(map), (0, 0), maxCoords(map), (g, p) => g(p)).distance
 
   def wg(map: Map[(Int, Int), Int]): WeightedGraph[(Int, Int)] = map.map(entry => {
     entry._1 -> neighbors(map, entry._1).map(nb => (nb, map(nb))).toList
@@ -23,7 +23,7 @@ object Day15 {
   }).filter(p => map.contains(p))
 
   def extend(map: Map[(Int, Int), Int]): Map[(Int, Int), Int] = {
-    val d = dim(map)
+    val d = maxCoords(map)
     val c = d._1 + 1
     val r = d._2 + 1
     (0 until 5 * c).flatMap(col => {
@@ -34,7 +34,7 @@ object Day15 {
     }).toMap
   }
 
-  def dim(map: Map[(Int, Int), Int]): (Int, Int)=  {
+  def maxCoords(map: Map[(Int, Int), Int]): (Int, Int)=  {
     (map.keys.maxBy(_._1)._1, map.keys.maxBy(_._2)._2)
   }
 }
