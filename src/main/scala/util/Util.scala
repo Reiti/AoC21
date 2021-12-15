@@ -28,6 +28,13 @@ object Util {
 
   def loadDayInts(day: Int): List[Int] = loadDayLines(day).map(_.toInt)
 
+  def loadDayMap(day: Int): Map[(Int, Int), Char] = {
+    val lines = loadDayLines(day)
+    lines.indices.flatMap(col => lines.head.indices.map(row => {
+      (col, row) -> lines(col)(row)
+    })).toMap
+  }
+
   def loadDayProgram(day: Int): Map[Int, (String, Int)] =
     Util.loadDayLines(day)
       .map {l => 
@@ -122,4 +129,7 @@ object Util {
   def memoize[I, O](f: I => O): I => O = new mutable.HashMap[I, O]() {
     override def apply(key: I): O = getOrElseUpdate(key, f(key))
   }
+
+  val vonNeumannNeighborhood: Seq[(Int, Int)] = Seq((-1, 0), (1, 0), (0, -1), (0, 1))
+  val mooreNeighborhood: Seq[(Int, Int)] = vonNeumannNeighborhood ++ Seq((-1, -1), (-1, 1), (1, -1), (1, 1))
 }
