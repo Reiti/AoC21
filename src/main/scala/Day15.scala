@@ -1,8 +1,6 @@
 import util.Util
 import util.Util.WeightedGraph
 
-import scala.annotation.tailrec
-
 object Day15 {
   def main(args: Array[String]): Unit = {
     val map = Util.loadDayMap(15).view.mapValues(_ - '0').toMap
@@ -30,11 +28,7 @@ object Day15 {
     val r = d._2 + 1
     (0 until 5 * c).flatMap(col => {
       (0 until 5 * r).map(row => {
-        val addR = row/r
-        val addC = col/c
-
-        val n = map(col % c, row % r) + addR + addC
-
+        val n = map(col % c, row % r) + row/r + col/c
         (col, row) -> (if n > 9 then n - 9 else n)
       })
     }).toMap
