@@ -6,8 +6,8 @@ object Day17 {
   def main(args: Array[String]): Unit = {
     val targetArea = (207, 263, -115, -63)
 
-    val hit = (1 until 2*targetArea._2).flatMap(xv => {
-      (-targetArea._2 until targetArea._2).map(yv => {
+    val hit = (1 until targetArea._2 + 1).flatMap(xv => {
+      (targetArea._3 until targetArea._2).map(yv => {
         hits((0, 0), (xv, yv), targetArea, 0)
       })
     }).filter(_._1)
