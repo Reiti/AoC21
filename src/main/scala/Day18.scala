@@ -99,7 +99,7 @@ object Day18 {
       }
     } else {
       val e = explode(curr.get.left, level + 1)
-      e || explode(curr.get.right, level +1)
+      e || explode(curr.get.right, level + 1)
     }
   }
 
