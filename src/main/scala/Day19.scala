@@ -38,11 +38,16 @@ object Day19 {
   def main(args: Array[String]): Unit = {
     val input = Util.loadDay(19).split("\n\n").map(parse).toList
 
-    Util.time {
-      val done = overlaps(input.tail, List(input.head), List())
-      val d = done.flatMap(_.beacons).distinctBy(_.mkString)
-      println(d.size)
-    }
+    val map = overlaps(input.tail, List(input.head), List())
+
+    //Part 1
+    println(map.flatMap(_.beacons).distinctBy(_.mkString).size)
+
+    val offsets = map.map(s => s.offset)
+    val pairs = offsets.flatMap(o1 => offsets.map(o2 => (o1, o2))).filter({case (o1, o2) => !(o1 sameElements o2)})
+
+    //Part 2
+    println(pairs.map(p => manhattan(p._1, p._2)).max)
   }
 
   def parse(definition: String): Scanner = {
@@ -72,7 +77,7 @@ object Day19 {
   }
 
   def rel(scanner: Scanner, point: Array[Int]): Scanner = scanner match {
-    case Scanner(idx, beacons, offset, rotation) => Scanner(idx, beacons.map(b => b.zip(point).map(_ - _)), offset, rotation)
+    case Scanner(idx, beacons, offset, rotation) => Scanner(idx, beacons.map(b => b.zip(point).map(_ - _)), offset.zip(point).map(_ - _), rotation)
   }
 
   def shift(scanner: Scanner, point: Array[Int]): Scanner = scanner match {
@@ -82,7 +87,6 @@ object Day19 {
   def rotate(scanner: Scanner, rotation: Array[Array[Int]]): Scanner = scanner match {
     case Scanner(idx, beacons, offset, _) => Scanner(idx, beacons.map(b => times(rotation, b)), offset, rotation)
   }
-
 
   def findOverlap(pair: (Scanner, Scanner)): Option[Scanner] = {
     val tries = allRotations.flatMap(rot => {
@@ -102,7 +106,6 @@ object Day19 {
   @tailrec
   def overlaps(scanners: List[Scanner], toMap: List[Scanner], mapped: List[Scanner]): List[Scanner] = toMap match {
     case x :: xs =>
-      println(x.idx)
       val pairs = scanners.map(s => (x, s))
       val overlapping = pairs.map(findOverlap).filter(_.nonEmpty).map(_.get)
       val newS = scanners.filter(s => !overlapping.exists(o => o.idx == s.idx))
@@ -113,18 +116,7 @@ object Day19 {
     case Nil => mapped
   }
 
-  /*Working but slow:
-  def findOverlap(pair: (Scanner, Scanner)): Option[Scanner] = {
-    val tries = allRotations.flatMap(rot => {
-    pair._1.beacons.toList.map(b => {
-      (pair._1, pair._2, rot, b)
-    })})
-
-    tries.map({ case (s0, s1, rot, offset) =>
-      val allShifts = rotate(s1, rot).beacons.toList.map(b => {
-        shift(rel(rotate(s1, rot), b), offset)
-      })
-      allShifts.find(scanner => scanner.beacons.map(_.mkString).intersect(s0.beacons.map(_.mkString)).size >= 12)
-    }).find(_.nonEmpty).flatten
-  }*/
+  def manhattan(p1: Array[Int], p2: Array[Int]): Int = {
+    Math.abs(p1(0) - p2(0)) + Math.abs(p1(1) - p2(1)) + Math.abs(p1(2) - p2(2))
+  }
 }
