@@ -152,4 +152,11 @@ object Util {
   def manhattan(p: (Int, Int), q: (Int, Int)): Int = {
     Math.abs(p._1 - q._1) + Math.abs(p._2 - q._2)
   }
+
+  def parseMap(lines: Array[String]): Map[(Int, Int), Char] = {
+    (for {
+      i <- lines.indices
+      j <- lines.head.indices
+    } yield (i, j) -> lines(i)(j)).toMap.withDefaultValue('.')
+  }
 }
