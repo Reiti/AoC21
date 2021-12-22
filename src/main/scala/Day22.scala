@@ -9,10 +9,10 @@ object Day22:
     val cuboids = Util.loadDayLines(22).map(parse)
 
     //Part 1
-    println(solve(p1Restricted(cuboids), List()))
+    println(solve(p1Restricted(cuboids)))
 
     //Part 2
-    println(solve(cuboids, List()))
+    println(solve(cuboids))
 
   def parse(cuboid: String): Cuboid =
     val s = cuboid.split(" ")
@@ -29,7 +29,7 @@ object Day22:
     (c.x2 - c.x1 + 1) * (c.y2 - c.y1 + 1) * (c.z2 - c.z1 + 1)
 
   @tailrec
-  def solve(cuboids: List[Cuboid], space: List[Cuboid]): Long = cuboids match
+  def solve(cuboids: List[Cuboid], space: List[Cuboid] = List()): Long = cuboids match
     case x :: xs =>
       val i = intersections(x, space)
       val n = if x.on then x :: i else i
