@@ -3,10 +3,8 @@ import util.Util
 import scala.annotation.tailrec
 
 object Day23:
-  val room = Map(3 -> 'A', 5 -> 'B', 7 -> 'C', 9 -> 'D')
-  val roomC = Map('A' -> 3, 'B' -> 5, 'C' -> 7, 'D' -> 9)
-  val costs = Map('A' -> 1, 'B' -> 10, 'C' -> 100, 'D' -> 1000)
-
+  val rooms: Map[Int, Char] = Map(3 -> 'A', 5 -> 'B', 7 -> 'C', 9 -> 'D').withDefaultValue('#')
+  
   case class State(a: Set[(Int, Int)], b: Set[(Int, Int)], c: Set[(Int, Int)], d: Set[(Int, Int)])
 
   def main(args: Array[String]): Unit =
@@ -38,6 +36,7 @@ object Day23:
 
     //Part 2
     println(r2.distance)
+  end main
 
   def initialize(lines: List[String]): (State, Map[(Int, Int), Char]) =
     val m = parseInput(lines)
@@ -68,31 +67,16 @@ object Day23:
     val d = state.d.map(s => possibleMoves(s, 'D', state.copy(d = state.d.filter(_ != s)), map)).toList
     (a ++ b ++ c ++d).flatten
 
-  def possibleMoves(p: (Int, Int), t: Char, state: State, map: Map[(Int, Int), Char]): List[(State, Int)] =
+  def possibleMoves(start: (Int, Int), t: Char, state: State, map: Map[(Int, Int), Char]): List[(State, Int)] =
     val f = flatten(map, state)
-    val un = unobstructed(p, f, Set())
-    val legal = un.filter(u => {
-      if p._2 == roomC(t) then
-        if belowFilled(p, t, f) then
-          false
-        else if u._1 == 1  && !roomC.values.toList.contains(u._2) then
-          true
-        else if roomC(t) != u._2 then
-          false
-        else
-          false
-      else if u._2 == roomC(t) then
-        if belowFilled((u._1, u._2), t, f) then
-          true
-        else
-          false
+    val un = unobstructed(start, f, Set())
+    val legal = un.filter(end => {
+      if rooms(start._2) == t then
+        end._1 == 1  && !rooms.contains(end._2) && !belowFilled(start, t, f)
+      else if rooms(end._2) == t then
+        belowFilled((end._1, end._2), t, f)
       else
-        if p._1 == 1 then
-          false
-        else if u._1 != 1 then
-          false
-        else
-          !roomC.values.toList.contains(u._2)
+        start._1 != 1 && end._1 == 1 && !rooms.contains(end._2)
     })
     legal.map(r =>
       if t == 'A' then
@@ -104,9 +88,10 @@ object Day23:
       else
         (state.copy(d = Set((r._1, r._2)) union state.d), r._3 * 1000)
     )
+  end possibleMoves
 
   @tailrec
-  def belowFilled(targetPos: (Int, Int), t: Char, f: Map[(Int, Int), Char]): Boolean = {
+  def belowFilled(targetPos: (Int, Int), t: Char, f: Map[(Int, Int), Char]): Boolean =
     val below = f((targetPos._1 + 1, targetPos._2))
     if below == '#' then
       true
@@ -114,7 +99,6 @@ object Day23:
       false
     else
       belowFilled((targetPos._1 + 1, targetPos._2), t, f)
-  }
 
   def flatten(map: Map[(Int, Int), Char], s: State): Map[(Int, Int), Char] =
     val keys = s.a.map(_ -> 'A') ++ s.b.map(_ -> 'B') ++ s.c.map(_ -> 'C') ++ s.d.map(_ -> 'D')
@@ -124,5 +108,4 @@ object Day23:
     val nb = Util.vonNeumannNeighborhood.map(n =>
       (p._1 + n._1, p._2 + n._2)
     ).filter(p => map(p) == '.').filter(p => !visited.contains(p)).toList.map(p => (p._1, p._2, 1))
-
     nb ++ nb.flatMap(n => unobstructed((n._1, n._2), map, visited ++ nb.map(n => (n._1, n._2)))).map(p => (p._1, p._2, p._3 + 1))
