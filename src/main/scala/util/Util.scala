@@ -118,6 +118,7 @@ object Util {
     distance(start) = 0
     q.enqueue(start)
 
+
     while (q.nonEmpty) {
       val node = q.dequeue()
       if (node == target) {
