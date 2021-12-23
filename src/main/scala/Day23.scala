@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 object Day23:
   val rooms: Map[Int, Char] = Map(3 -> 'A', 5 -> 'B', 7 -> 'C', 9 -> 'D').withDefaultValue('#')
-  
+
   case class State(a: Set[(Int, Int)], b: Set[(Int, Int)], c: Set[(Int, Int)], d: Set[(Int, Int)])
 
   def main(args: Array[String]): Unit =
@@ -47,10 +47,7 @@ object Day23:
     val init = State(A, B, C, D)
     val blankMap = m.map(e => if e._2 == '#' || e._2 == '.' || e._2 == ' ' then e else (e._1, '.')).withDefaultValue(' ')
     (init, blankMap)
-
-
-
-
+  
   def parseInput(lines: List[String]): Map[(Int, Int), Char] =
     (
       for
