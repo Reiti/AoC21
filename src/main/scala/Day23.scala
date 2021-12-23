@@ -47,7 +47,7 @@ object Day23:
     val init = State(A, B, C, D)
     val blankMap = m.map(e => if e._2 == '#' || e._2 == '.' || e._2 == ' ' then e else (e._1, '.')).withDefaultValue(' ')
     (init, blankMap)
-  
+
   def parseInput(lines: List[String]): Map[(Int, Int), Char] =
     (
       for
@@ -69,7 +69,7 @@ object Day23:
     val un = unobstructed(start, f, Set())
     val legal = un.filter(end => {
       if rooms(start._2) == t then
-        end._1 == 1  && !rooms.contains(end._2) && !belowFilled(start, t, f)
+        end._1 == 1 && !rooms.contains(end._2) && !belowFilled(start, t, f)
       else if rooms(end._2) == t then
         belowFilled((end._1, end._2), t, f)
       else
