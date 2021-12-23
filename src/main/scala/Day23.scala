@@ -10,83 +10,47 @@ object Day23:
   case class State(a: Set[(Int, Int)], b: Set[(Int, Int)], c: Set[(Int, Int)], d: Set[(Int, Int)])
 
   def main(args: Array[String]): Unit =
-    //part1()
-    part2()
-
-
-    /*
-    val n1 = neighbors(blankMap)(g, init)
-
-    //printMap(blankMap, n1(2)._1)
-
-    val n2 = neighbors(blankMap)(g, n1(2)._1)
-
-    //printMap(blankMap, n2(3)._1)
-
-    val n3 = neighbors(blankMap)(g, n2(3)._1)
-
-    val n4 = neighbors(blankMap)(g, n3(6)._1)
-
-    val n5 = neighbors(blankMap)(g, n4.head._1)
-
-    val n6 = neighbors(blankMap)(g, n5(3)._1)
-
-    val n7 = neighbors(blankMap)(g, n6.head._1)
-
-    val n8 = neighbors(blankMap)(g, n7.head._1)
-
-    val n9 = neighbors(blankMap)(g, n8.head._1)
-
-    val n10 = neighbors(blankMap)(g, n9.head._1)
-
-    val t = State(Set((2, 3), (3, 3)), Set((2, 5), (3, 5)), Set((2, 7), (3, 7)), Set((2, 9), (3, 9)))
-    println(n10.head._1)
-    println(t)
-    println(t == n10.head._1)
-    */
-
-
-/*
-    val n = neighbors(blankMap)(g, init)
-    printMap(blankMap, init)
-    println("-------------------------")
-    n.foreach(nb =>
-      printMap(blankMap, nb._1)
-      println("------------")
-    )
-*/
-
-
-  def part2(): Unit =
     val lines = Util.loadDayLines(23)
-    val full = parseInput(lines.take(3) ++ List("  #D#C#B#A#", "  #D#B#A#C#") ++ lines.drop(3))
-    val A = full.filter(_._2 == 'A').keys.toSet
-    val B = full.filter(_._2 == 'B').keys.toSet
-    val C = full.filter(_._2 == 'C').keys.toSet
-    val D = full.filter(_._2 == 'D').keys.toSet
-
-    val init = State(A, B, C, D)
-    val blankMap = full.map(e => if e._2 == '#' || e._2 == '.' || e._2 == ' ' then e else (e._1, '.')).withDefaultValue(' ')
-
-    printMap(blankMap, init)
-
-
-  def part1(): Unit =
-    val map = parseInput(Util.loadDayLines(23))
-    val A = map.filter(_._2 == 'A').keys.toSet
-    val B = map.filter(_._2 == 'B').keys.toSet
-    val C = map.filter(_._2 == 'C').keys.toSet
-    val D = map.filter(_._2 == 'D').keys.toSet
-
-    val init = State(A, B, C, D)
-    val blankMap = map.map(e => if e._2 == '#' || e._2 == '.' || e._2 == ' ' then e else (e._1, '.')).withDefaultValue(' ')
-
-
     val g: Util.WeightedGraph[State] = Map()
 
-    val r = Util.dijkstra(g, init, State(Set((2, 3), (3, 3)), Set((2, 5), (3, 5)), Set((2, 7), (3, 7)), Set((2, 9), (3, 9))), neighbors(blankMap))
+    val (init, blankMap) = initialize(lines)
+    val target = State(
+      Set((2, 3), (3, 3)),
+      Set((2, 5), (3, 5)),
+      Set((2, 7), (3, 7)),
+      Set((2, 9), (3, 9))
+    )
 
+    val r = Util.dijkstra(g, init, target, neighbors(blankMap))
+
+    //Part 1
     println(r.distance)
+
+    val (init2, blankMap2) = initialize(lines.take(3) ++ List("  #D#C#B#A#", "  #D#B#A#C#") ++ lines.drop(3))
+    val target2 = State(
+      Set((2, 3), (3, 3), (4, 3), (5, 3)),
+      Set((2, 5), (3, 5), (4, 5), (5, 5)),
+      Set((2, 7), (3, 7), (4, 7), (5, 7)),
+      Set((2, 9), (3, 9), (4, 9), (5, 9))
+    )
+
+    val r2 = Util.dijkstra(g, init2, target2, neighbors(blankMap2))
+
+    //Part 2
+    println(r2.distance)
+
+  def initialize(lines: List[String]): (State, Map[(Int, Int), Char]) =
+    val m = parseInput(lines)
+    val A = m.filter(_._2 == 'A').keys.toSet
+    val B = m.filter(_._2 == 'B').keys.toSet
+    val C = m.filter(_._2 == 'C').keys.toSet
+    val D = m.filter(_._2 == 'D').keys.toSet
+    val init = State(A, B, C, D)
+    val blankMap = m.map(e => if e._2 == '#' || e._2 == '.' || e._2 == ' ' then e else (e._1, '.')).withDefaultValue(' ')
+    (init, blankMap)
+
+
+
 
   def parseInput(lines: List[String]): Map[(Int, Int), Char] =
     (
@@ -96,24 +60,6 @@ object Day23:
       yield
         (i, j) -> lines(i)(j)
     ).toMap.withDefaultValue(' ')
-
-  def printMap(map: Map[(Int, Int), Char], s: State): Unit =
-    (0 to map.keys.maxBy(_._1)._1) foreach { j =>
-      (0 to map.keys.maxBy(_._2)._2) foreach { i=>
-        val pos = (j, i)
-        if s.a contains pos then
-          print('A')
-        else if s.b contains pos then
-          print('B')
-        else if s.c contains pos then
-          print('C')
-        else if s.d contains pos then
-          print('D')
-        else
-          print(map((j, i)))
-      }
-      println()
-    }
 
   def neighbors(map: Map[(Int, Int), Char])(wg: Util.WeightedGraph[State], state: State): List[(State, Int)] =
     val a = state.a.map(s => possibleMoves(s, 'A', state.copy(a = state.a.filter(_ != s)), map)).toList
@@ -127,9 +73,7 @@ object Day23:
     val un = unobstructed(p, f, Set())
     val legal = un.filter(u => {
       if p._2 == roomC(t) then
-        if p._1 == 3 then
-          false
-        else if p._1 == 2 && f(3, roomC(t)) == t then
+        if belowFilled(p, t, f) then
           false
         else if u._1 == 1  && !roomC.values.toList.contains(u._2) then
           true
@@ -138,9 +82,7 @@ object Day23:
         else
           false
       else if u._2 == roomC(t) then
-        if u._1 == 3 then
-          true
-        else if u._1 == 2 && f(3, roomC(t)) == t then
+        if belowFilled((u._1, u._2), t, f) then
           true
         else
           false
@@ -184,9 +126,3 @@ object Day23:
     ).filter(p => map(p) == '.').filter(p => !visited.contains(p)).toList.map(p => (p._1, p._2, 1))
 
     nb ++ nb.flatMap(n => unobstructed((n._1, n._2), map, visited ++ nb.map(n => (n._1, n._2)))).map(p => (p._1, p._2, p._3 + 1))
-
-  /*
-  def heuristic(s: State) = {
-    s.a.count(p => !roomC.contains(p._2))
-  }
-  */
