@@ -11,6 +11,7 @@ object Day24:
 
     //Part 2
     println(stepWise(steps, max = false))
+  end main
 
   @tailrec
   def execute(program: List[List[String]], acc: Map[String, Long], input: List[Long]): Map[String, Long] = program match
